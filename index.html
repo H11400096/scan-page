@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>藥品簽收 - 掃描醫囑號</title>
+
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet" />
+
+  <style>
+    html, body {
+      margin: 0; padding: 0;
+      background-color: #dde9f9;
+      font-family: 'Noto Sans TC', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-size: 16px;
+    }
+    .app-container {
+      width: 90%;
+      max-width: 360px;
+      min-width: 300px;
+      background-color: white;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      padding: 2rem;
+      text-align: center;
+    }
+    h2 {
+      color: #5b9bd5;
+      margin-bottom: 1.25rem;
+      font-size: 1.4rem;
+    }
+    #reader {
+      width: 100%;
+      max-width: 200px;
+      height: 450px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(91,155,213,0.3);
+      margin: 0 auto;
+    }
+    #result {
+      margin-top: 1.25rem;
+      font-size: 1.125rem;
+      color: #444;
+      background: #e8f0fe;
+      padding: 0.75rem;
+      border-radius: 12px;
+      min-height: 2.5rem;
+      word-break: break-word;
+    }
+    .footer {
+      margin-top: 0.75rem;
+      font-size: 0.875rem;
+      color: #888;
+    }
+
+    @media (max-width: 480px) {
+      html { font-size: 14px; }
+      h2 { font-size: 1.2rem; }
+      #result { font-size: 1rem; }
+      .app-container { max-width: 320px; min-width: 280px; padding: 2rem 1.5rem; }
+      #reader { max-width: 160px; height: 360px; }
+    }
+    @media (max-width: 360px) {
+      html { font-size: 13px; }
+      h2 { font-size: 1rem; }
+      #result { font-size: 0.9rem; }
+      .app-container { max-width: 280px; min-width: 260px; padding: 1.5rem 1rem; }
+      #reader { max-width: 140px; height: 320px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <h2>📷 掃描醫囑號</h2>
+    <div id="reader"></div>
+    <div id="result">尚未掃描</div>
+    <div class="footer">請將 QR Code 對準畫面中央</div>
+  </div>
+
+  <script>
+    const html5QrCode = new Html5Qrcode("reader");
+
+    Html5Qrcode.getCameras().then(devices => {
+      if (devices && devices.length) {
+        const cameraId = devices.find(d => d.label.toLowerCase().includes("back"))?.id || devices[0].id;
+        html5QrCode.start(
+          cameraId,
+          {
+            fps: 10,
+            qrbox: { width: 190, height: 430 },
+          },
+          (decodedText) => {
+            document.getElementById("result").innerText = "✅ 醫囑號：" + decodedText;
+            html5QrCode.stop().catch(err => console.error("停止失敗", err));
+          },
+          (errorMessage) => {
+            // 可加 console.log(errorMessage) 來除錯
+          }
+        );
+      }
+    }).catch(err => {
+      console.error("取得攝影機失敗", err);
+    });
+  </script>
+</body>
+</html>
